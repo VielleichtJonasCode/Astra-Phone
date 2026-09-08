@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Astra signieren</title>
+<title>Astra unterwegs</title>
 <meta name="theme-color" content="#0b0b12" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Signieren" />
+<meta name="apple-mobile-web-app-title" content="Astra" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link
   rel="apple-touch-icon"
@@ -40,15 +40,18 @@
   header svg { width: 30px; height: 30px; }
   header h1 { font-size: 17px; margin: 0; font-weight: 650; }
   header span { color: var(--dim); font-size: 12px; }
-  nav { display: flex; gap: 4px; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 16px; }
+  nav { display: flex; gap: 4px; background: var(--card); border-radius: 12px; padding: 4px; margin-bottom: 16px; overflow-x: auto; }
   nav button {
     flex: 1; border: 0; background: none; color: var(--dim); font: inherit; font-weight: 600;
-    padding: 9px 6px; border-radius: 9px;
+    padding: 9px 6px; border-radius: 9px; white-space: nowrap;
   }
   nav button.on { background: #23242e; color: var(--text); }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
   .card h2 { margin: 0 0 8px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--dim); }
   p { margin: 6px 0; color: var(--dim); font-size: 13px; }
+  ol.steps { margin: 8px 0 2px; padding-left: 20px; color: var(--dim); font-size: 13px; }
+  ol.steps li { margin: 3px 0; }
+  ol.steps b { color: var(--text); }
   .keyid { font: 600 18px/1.4 ui-monospace, "SF Mono", Menlo, monospace; letter-spacing: .06em; color: var(--accent); word-break: break-all; }
   label.file, button.act {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
@@ -58,7 +61,7 @@
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
   button.act:disabled { opacity: .45; }
   input[type=file] { display: none; }
-  input[type=password], textarea {
+  input[type=password], input[type=text], textarea {
     width: 100%; background: #0e0f16; color: var(--text); border: 1px solid var(--line);
     border-radius: 10px; padding: 10px; font: inherit; margin-top: 8px;
   }
@@ -75,22 +78,121 @@
   .hidden { display: none; }
   .muted { font-size: 12px; color: var(--dim); margin-top: 10px; }
   a { color: var(--accent); }
+  .pages { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .pages figure { position: relative; margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #0e0f16; }
+  .pages img { display: block; width: 100%; height: 96px; object-fit: cover; }
+  .pages figcaption { position: absolute; left: 4px; top: 4px; background: rgba(0,0,0,.6); border-radius: 6px; font-size: 11px; padding: 1px 6px; }
+  .pages button { position: absolute; right: 4px; top: 4px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 13px; }
+  .toggle { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13px; color: var(--text); }
+  .toggle input { width: 40px; height: 24px; }
+  .learn-tabs { display: flex; gap: 4px; margin: 12px 0; }
+  .learn-tabs button { flex: 1; border: 0; background: #23242e; color: var(--dim); font: inherit; font-weight: 600; padding: 7px 4px; border-radius: 8px; font-size: 12px; }
+  .learn-tabs button.on { background: var(--accent); color: #fff; }
+  .learn-doc { white-space: pre-wrap; font: 13px/1.55 -apple-system, sans-serif; background: #0e0f16; border: 1px solid var(--line); border-radius: 10px; padding: 12px; max-height: 52vh; overflow: auto; }
+  .lq { margin-bottom: 10px; }
+  .lq p { color: var(--text); font-weight: 600; margin: 0 0 8px; }
+  .lq button { display: block; width: 100%; text-align: left; margin: 5px 0; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: #0e0f16; color: var(--text); font: inherit; font-size: 13px; }
+  .lq button.ok { border-color: var(--ok); background: color-mix(in srgb, var(--ok) 15%, #0e0f16); }
+  .lq button.no { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 15%, #0e0f16); }
+  .lq .expl { margin-top: 8px; font-size: 12px; color: var(--dim); }
+  .lqnav { display: flex; justify-content: space-between; margin-top: 12px; }
+  .lqnav button { background: #23242e; border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; }
 </style>
 </head>
 <body>
 <header>
   <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" fill="none" stroke="#5b8cff" stroke-width="1.6"/><ellipse cx="12" cy="12" rx="10" ry="3.4" fill="none" stroke="#e2b64a" stroke-width="1.6" transform="rotate(-20 12 12)"/></svg>
-  <div><h1>Astra signieren</h1><span id="sub">Schlüssel wird geladen …</span></div>
+  <div><h1>Astra unterwegs</h1><span id="sub">Notizen scannen &amp; PDFs signieren</span></div>
 </header>
 
 <nav>
-  <button data-tab="key" class="on">Schlüssel</button>
+  <button data-tab="scan" class="on">Scannen</button>
+  <button data-tab="learn">Lernen</button>
   <button data-tab="sign">Signieren</button>
   <button data-tab="verify">Prüfen</button>
+  <button data-tab="key">Schlüssel</button>
 </nav>
 
+<!-- ---------- Scannen ---------- -->
+<section id="tab-scan">
+  <div class="card">
+    <h2>Notizen scannen</h2>
+    <p>Seiten mit der Kamera aufnehmen oder aus den Fotos wählen. Daraus wird ein PDF, das du
+       in iCloud ablegst – Astra am Mac sortiert es dann nach Semester und Kurs ein.</p>
+    <label class="file">📷 Seiten aufnehmen<input type="file" id="scanfile" accept="image/*" capture="environment" multiple></label>
+    <label class="file">🖼 Aus Fotos wählen<input type="file" id="scanpick" accept="image/*" multiple></label>
+
+    <div class="pages" id="scanpages"></div>
+
+    <label class="toggle"><input type="checkbox" id="scanbw"> Kontrast verstärken (bessere Lesbarkeit)</label>
+
+    <input type="text" id="scanname" placeholder="Name (optional), z. B. Analysis II – Grenzwerte" />
+
+    <div>
+      <button class="act primary" id="scansave" disabled>Als PDF sichern / in iCloud</button>
+      <button class="act" id="scanclear" disabled>Verwerfen</button>
+    </div>
+    <ol class="steps">
+      <li>Im Teilen-Menü <b>„In Dateien sichern“</b> wählen.</li>
+      <li>Ordner <b>iCloud Drive → Studium → _Eingang</b> öffnen und sichern.</li>
+      <li>Am Mac in Astra → <b>Studienplaner</b> auf <b>„Einsortieren“</b> tippen.</li>
+    </ol>
+    <p class="muted" id="scanhint"></p>
+  </div>
+</section>
+
+<!-- ---------- Lernen ---------- -->
+<section id="tab-learn" class="hidden">
+  <div class="card">
+    <h2>Prüfungsvorbereitung</h2>
+    <p>Öffne das <code>lernpaket.json</code> aus <b>iCloud Drive → Studium → … →
+       Prüfungsvorbereitung</b>. Quiz &amp; Fortschritt laufen offline; „Fortschritt sichern“
+       schreibt die Datei zurück, sobald du online bist.</p>
+    <label class="file">Lernpaket öffnen<input type="file" id="learnfile" accept=".json,application/json"></label>
+    <div id="learnout" class="hidden">
+      <div class="result">
+        <div class="head" id="learnhead"></div>
+        <div id="learnstats" class="muted"></div>
+      </div>
+      <div class="learn-tabs">
+        <button data-lt="quiz" class="on">Quiz</button>
+        <button data-lt="summary">Zusammenfassung</button>
+        <button data-lt="plan">Lernplan</button>
+      </div>
+      <div id="lt-quiz"></div>
+      <pre id="lt-summary" class="hidden learn-doc"></pre>
+      <pre id="lt-plan" class="hidden learn-doc"></pre>
+      <div><button class="act primary" id="learnsave">Fortschritt sichern</button>
+      <span class="muted" id="learnsavehint"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ---------- Signieren ---------- -->
+<section id="tab-sign" class="hidden">
+  <div class="card">
+    <h2>PDF signieren</h2>
+    <p>Hängt die unsichtbare <code>%%ASTRA-SIG</code>-Kennung an – identisch zu Astra am Mac.</p>
+    <label class="file" id="signpick">PDF wählen<input type="file" id="signfile" accept=".pdf,application/pdf"></label>
+    <div id="signout" class="hidden">
+      <div class="result ok"><div class="head"><span class="dot">✓</span><span id="signname"></span></div></div>
+      <div><button class="act primary" id="signsave">Sichern / Teilen</button></div>
+    </div>
+    <p class="muted" id="signhint"></p>
+  </div>
+</section>
+
+<!-- ---------- Prüfen ---------- -->
+<section id="tab-verify" class="hidden">
+  <div class="card">
+    <h2>Signatur prüfen</h2>
+    <label class="file">PDF wählen<input type="file" id="verifyfile" accept=".pdf,application/pdf"></label>
+    <div id="verifyout"></div>
+  </div>
+</section>
+
 <!-- ---------- Schlüssel ---------- -->
-<section id="tab-key">
+<section id="tab-key" class="hidden">
   <div class="card">
     <h2>Dein Schlüssel</h2>
     <div class="keyid" id="keyid">– – – –</div>
@@ -110,29 +212,6 @@
   </div>
 </section>
 
-<!-- ---------- Signieren ---------- -->
-<section id="tab-sign" class="hidden">
-  <div class="card">
-    <h2>PDF signieren</h2>
-    <p>Hängt die unsichtbare <code>%%ASTRA-SIG</code>-Kennung an – identisch zu Astra.</p>
-    <label class="file" id="signpick">PDF wählen<input type="file" id="signfile" accept=".pdf,application/pdf"></label>
-    <div id="signout" class="hidden">
-      <div class="result ok"><div class="head"><span class="dot">✓</span><span id="signname"></span></div></div>
-      <div><button class="act primary" id="signsave">Sichern / Teilen</button></div>
-    </div>
-    <p class="muted" id="signhint"></p>
-  </div>
-</section>
-
-<!-- ---------- Prüfen ---------- -->
-<section id="tab-verify" class="hidden">
-  <div class="card">
-    <h2>Signatur prüfen</h2>
-    <label class="file">PDF wählen<input type="file" id="verifyfile" accept=".pdf,application/pdf"></label>
-    <div id="verifyout"></div>
-  </div>
-</section>
-
 <p class="muted">Läuft komplett offline. Nichts wird hochgeladen.
   <span id="offline"></span></p>
 
@@ -146,6 +225,7 @@ const enc = new TextEncoder(), dec = new TextDecoder()
 const b64 = (buf) => { const u = buf instanceof Uint8Array ? buf : new Uint8Array(buf); let s=''; for (const b of u) s+=String.fromCharCode(b); return btoa(s) }
 const unb64 = (s) => { const bin = atob(s.replace(/\s+/g,'')); const o = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) o[i]=bin.charCodeAt(i); return o }
 const hex = (buf) => Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')
+const $ = (s) => document.querySelector(s)
 
 async function fingerprint(rawPub) {
   const d = new Uint8Array(await crypto.subtle.digest('SHA-256', rawPub)).slice(0,10)
@@ -158,8 +238,7 @@ let KEY = null // { created, keyId, priv, pub, pubRawB64 }
 async function loadStoredKey() {
   const raw = localStorage.getItem(LS)
   if (!raw) return null
-  const s = JSON.parse(raw)
-  return importPair(s)
+  return importPair(JSON.parse(raw))
 }
 async function importPair(s) {
   const priv = await crypto.subtle.importKey('jwk', s.privateJwk, KEY_ALG, false, ['sign'])
@@ -182,7 +261,7 @@ async function decryptKeyFile(text, password) {
   let json
   try { json = dec.decode(await crypto.subtle.decrypt({ name:'AES-GCM', iv }, aes, ct)) }
   catch { throw new Error('Falsches Passwort oder beschädigte Datei') }
-  return JSON.parse(json) // { v, created, privateJwk, publicJwk }
+  return JSON.parse(json)
 }
 
 /* ---------- Trailer ---------- */
@@ -231,18 +310,152 @@ async function verifySignature(file) {
   return { status: isMine ? 'ok' : 'foreign', keyId: realId, created: block.created, note: block.note, isMine }
 }
 
-/* ---------- UI ---------- */
-const $ = (s) => document.querySelector(s)
+/* ---------- Bilder → PDF (ohne Bibliothek) ---------- */
+async function fileToJpeg(file, bw) {
+  const bmp = await createImageBitmap(file)
+  // auf sinnvolle Größe begrenzen (lange Kante ~2200 px)
+  const maxEdge = 2200
+  const scale = Math.min(1, maxEdge / Math.max(bmp.width, bmp.height))
+  const w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale)
+  const cv = document.createElement('canvas')
+  cv.width = w; cv.height = h
+  const ctx = cv.getContext('2d')
+  ctx.drawImage(bmp, 0, 0, w, h)
+  bmp.close && bmp.close()
+  if (bw) {
+    const img = ctx.getImageData(0, 0, w, h), d = img.data
+    // Graustufen + Kontrast-Spreizung
+    let min = 255, max = 0
+    for (let i = 0; i < d.length; i += 4) {
+      const g = (d[i]*0.3 + d[i+1]*0.59 + d[i+2]*0.11) | 0
+      d[i] = d[i+1] = d[i+2] = g
+      if (g < min) min = g; if (g > max) max = g
+    }
+    const span = Math.max(1, max - min)
+    for (let i = 0; i < d.length; i += 4) {
+      let v = (d[i] - min) / span
+      v = Math.max(0, Math.min(1, (v - 0.15) / 0.7)) // dunkler wird schwarz, hell wird weiß
+      const g = (v * 255) | 0
+      d[i] = d[i+1] = d[i+2] = g
+    }
+    ctx.putImageData(img, 0, 0)
+  }
+  const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.82))
+  return { bytes: new Uint8Array(await blob.arrayBuffer()), w, h }
+}
+
+function buildPdf(pages) {
+  // pages: [{ bytes: Uint8Array(jpeg), w, h }]
+  const A4W = 595.28
+  const parts = []
+  let len = 0
+  const push = (chunk) => {
+    const u = typeof chunk === 'string' ? enc.encode(chunk) : chunk
+    parts.push(u); len += u.length
+  }
+  const offsets = []
+  const obj = (n, body) => { offsets[n] = len; push(n + ' 0 obj\n'); push(body); push('\nendobj\n') }
+
+  push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n')
+  const nPages = pages.length
+  const kids = []
+  // Objekt-Nummern: 1 Catalog, 2 Pages, dann je Seite: page, content, image
+  for (let i = 0; i < nPages; i++) kids.push((3 + i * 3) + ' 0 R')
+
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>')
+  obj(2, '<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + nPages + ' >>')
+
+  pages.forEach((pg, i) => {
+    const pageNo = 3 + i * 3, contentNo = pageNo + 1, imgNo = pageNo + 2
+    const pw = A4W, ph = Math.round((pg.h / pg.w) * A4W * 100) / 100
+    obj(pageNo,
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + pw + ' ' + ph + ']' +
+      ' /Resources << /XObject << /Im0 ' + imgNo + ' 0 R >> >>' +
+      ' /Contents ' + contentNo + ' 0 R >>')
+    const stream = 'q ' + pw + ' 0 0 ' + ph + ' 0 0 cm /Im0 Do Q'
+    obj(contentNo, '<< /Length ' + stream.length + ' >>\nstream\n' + stream + '\nendstream')
+    // Bild-Objekt mit binärem Stream
+    offsets[imgNo] = len
+    push(imgNo + ' 0 obj\n')
+    push('<< /Type /XObject /Subtype /Image /Width ' + pg.w + ' /Height ' + pg.h +
+         ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + pg.bytes.length + ' >>\nstream\n')
+    push(pg.bytes)
+    push('\nendstream\nendobj\n')
+  })
+
+  const xrefAt = len
+  const total = 3 + nPages * 3
+  push('xref\n0 ' + total + '\n')
+  push('0000000000 65535 f \n')
+  for (let n = 1; n < total; n++) push(String(offsets[n] || 0).padStart(10, '0') + ' 00000 n \n')
+  push('trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xrefAt + '\n%%EOF')
+
+  const out = new Uint8Array(len)
+  let o = 0
+  for (const p of parts) { out.set(p, o); o += p.length }
+  return out
+}
+
+/* ---------- UI: Tabs ---------- */
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b))
+  for (const t of ['scan','learn','sign','verify','key']) $('#tab-'+t).classList.toggle('hidden', t !== b.dataset.tab)
+})
+
+/* ---------- UI: Scannen ---------- */
+let scanPages = [] // { url, jpeg:{bytes,w,h} }
+const bwEl = $('#scanbw')
+
+async function addScanFiles(list) {
+  const bw = bwEl.checked
+  for (const f of list) {
+    try {
+      const jpeg = await fileToJpeg(f, bw)
+      scanPages.push({ url: URL.createObjectURL(new Blob([jpeg.bytes], {type:'image/jpeg'})), jpeg })
+    } catch (e) { console.warn(e) }
+  }
+  renderScanPages()
+}
+function renderScanPages() {
+  const wrap = $('#scanpages')
+  wrap.innerHTML = ''
+  scanPages.forEach((p, i) => {
+    const fig = document.createElement('figure')
+    fig.innerHTML = '<img src="' + p.url + '" alt=""><figcaption>' + (i+1) + '</figcaption><button aria-label="Entfernen">×</button>'
+    fig.querySelector('button').onclick = () => { URL.revokeObjectURL(p.url); scanPages.splice(i,1); renderScanPages() }
+    wrap.appendChild(fig)
+  })
+  const has = scanPages.length > 0
+  $('#scansave').disabled = !has
+  $('#scanclear').disabled = !has
+  $('#scanhint').textContent = has ? (scanPages.length + ' Seite(n) bereit') : ''
+}
+$('#scanfile').onchange = (e) => { addScanFiles(e.target.files); e.target.value = '' }
+$('#scanpick').onchange = (e) => { addScanFiles(e.target.files); e.target.value = '' }
+$('#scanclear').onclick = () => { scanPages.forEach(p => URL.revokeObjectURL(p.url)); scanPages = []; renderScanPages() }
+$('#scansave').onclick = async () => {
+  if (!scanPages.length) return
+  const pdf = buildPdf(scanPages.map(p => p.jpeg))
+  const raw = ($('#scanname').value || 'Notiz').trim().replace(/[/\\:*?"<>|]+/g, '-')
+  const stamp = new Date().toISOString().slice(0, 10)
+  const name = raw + ' ' + stamp + '.pdf'
+  const file = new File([pdf], name, { type: 'application/pdf' })
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: name }); $('#scanhint').textContent = 'Geteilt – im Menü „In Dateien sichern“ → Studium/_Eingang.'; return } catch (e) { if (e.name === 'AbortError') return }
+  }
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(file); a.download = name
+  document.body.appendChild(a); a.click(); a.remove()
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+  $('#scanhint').textContent = 'Heruntergeladen – in iCloud Drive / Studium / _Eingang verschieben.'
+}
+
+/* ---------- UI: Schlüssel ---------- */
 function paintKey() {
   $('#keyid').textContent = KEY ? KEY.keyId : '– – – –'
   $('#keymeta').textContent = KEY ? ('geladen · erstellt am ' + new Date(KEY.created).toLocaleDateString('de-DE')) : 'Noch kein Schlüssel auf diesem Gerät.'
-  $('#sub').textContent = KEY ? KEY.keyId : 'kein Schlüssel'
+  $('#sub').textContent = KEY ? ('Schlüssel ' + KEY.keyId) : 'Notizen scannen & PDFs signieren'
 }
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b))
-  for (const t of ['key','sign','verify']) $('#tab-'+t).classList.toggle('hidden', t !== b.dataset.tab)
-})
-
 async function doImport(text) {
   const pw = $('#keypw').value
   if (!text.trim() || !pw) return alert('Datei/Text und Passwort nötig.')
@@ -258,10 +471,11 @@ $('#keyfile').onchange = async (e) => { const f = e.target.files[0]; if (f) $('#
 $('#keyimport').onclick = () => doImport($('#keytext').value)
 $('#keyclear').onclick = () => { if (confirm('Schlüssel von diesem Gerät entfernen?')) { localStorage.removeItem(LS); KEY = null; paintKey() } }
 
+/* ---------- UI: Signieren ---------- */
 let signedBlob = null, signedName = ''
 $('#signfile').onchange = async (e) => {
   const f = e.target.files[0]; if (!f) return
-  if (!KEY) return alert('Erst einen Schlüssel importieren (Tab „Schlüssel").')
+  if (!KEY) return alert('Erst einen Schlüssel importieren (Tab „Schlüssel“).')
   try {
     const out = await appendSignature(new Uint8Array(await f.arrayBuffer()))
     signedName = f.name.replace(/\.pdf$/i,'') + '-signiert.pdf'
@@ -283,6 +497,7 @@ $('#signsave').onclick = async () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 4000)
 }
 
+/* ---------- UI: Prüfen ---------- */
 const STAT = {
   ok:      { cls:'ok',       icon:'✓', title:'Von deinem Schlüssel signiert' },
   foreign: { cls:'foreign',  icon:'≠', title:'Gültig signiert – anderer Schlüssel' },
@@ -305,6 +520,102 @@ $('#verifyfile').onchange = async (e) => {
   }
   html += '</div>'
   $('#verifyout').innerHTML = html
+}
+
+/* ---------- UI: Lernen ---------- */
+let PACK = null, PACKNAME = 'lernpaket.json', qi = 0, qPicked = null
+
+function lsKey(p) { return 'astralearn:' + (p.examKey || p.examTitle || 'pack') }
+function loadLocalProgress(p) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(lsKey(p)) || 'null')
+    if (!saved) return p
+    // neuere Einträge je Frage gewinnen
+    const prog = { ...(p.progress || {}) }
+    for (const [id, v] of Object.entries(saved.progress || {})) {
+      if (!prog[id] || new Date(v.updated) >= new Date(prog[id].updated)) prog[id] = v
+    }
+    p.progress = prog
+    if (saved.updated && new Date(saved.updated) > new Date(p.updated || 0)) p.updated = saved.updated
+  } catch {}
+  return p
+}
+function saveLocalProgress(p) {
+  try { localStorage.setItem(lsKey(p), JSON.stringify({ progress: p.progress, updated: new Date().toISOString() })) } catch {}
+}
+
+function renderLearn() {
+  const p = PACK
+  $('#learnout').classList.toggle('hidden', !p)
+  if (!p) return
+  $('#learnhead').textContent = p.examTitle + (p.kurs ? ' · ' + p.kurs : '')
+  const ans = Object.keys(p.progress || {}).length
+  const sure = Object.values(p.progress || {}).filter(x => x.correct > 0).length
+  $('#learnstats').textContent = (p.quiz?.length || 0) + ' Fragen · ' + ans + ' beantwortet · ' + sure + ' sicher'
+  $('#lt-summary').textContent = p.summary || '(noch keine Zusammenfassung – am Mac erstellen)'
+  $('#lt-plan').textContent = p.plan || '(noch kein Lernplan – am Mac erstellen)'
+  renderQuiz()
+}
+function renderQuiz() {
+  const p = PACK, box = $('#lt-quiz')
+  const items = p.quiz || []
+  if (!items.length) { box.innerHTML = '<p class="muted">Noch kein Quiz. Am Mac in Astra erstellen.</p>'; return }
+  if (qi >= items.length) qi = 0
+  const q = items[qi]
+  const opts = q.choices.map((c, idx) => {
+    let cls = ''
+    if (qPicked !== null && idx === q.answer) cls = 'ok'
+    if (qPicked === idx && idx !== q.answer) cls = 'no'
+    return '<button class="' + cls + '" data-i="' + idx + '">' + String.fromCharCode(65+idx) + '  ' + esc(c) + '</button>'
+  }).join('')
+  box.innerHTML =
+    '<div class="lq"><p>' + (qi+1) + '. ' + esc(q.question) + '</p>' + opts +
+    (qPicked !== null ? '<div class="expl"><b>' + (qPicked === q.answer ? 'Richtig.' : 'Nicht ganz.') + '</b> ' + esc(q.explanation || '') + '</div>' : '') +
+    '</div><div class="lqnav"><button id="lqprev">Zurück</button><button id="lqnext">' + (qi < items.length-1 ? 'Weiter' : 'Von vorn') + '</button></div>'
+  box.querySelectorAll('.lq button[data-i]').forEach(b => b.onclick = () => {
+    if (qPicked !== null) return
+    qPicked = +b.dataset.i
+    const q2 = items[qi], correct = qPicked === q2.answer
+    const prev = p.progress[q2.id] || { seen: 0, correct: 0 }
+    p.progress[q2.id] = { seen: prev.seen + 1, correct: prev.correct + (correct ? 1 : 0), lastCorrect: correct, updated: new Date().toISOString() }
+    saveLocalProgress(p)
+    renderLearn()
+  })
+  $('#lqprev').onclick = () => { if (qi > 0) { qi--; qPicked = null; renderQuiz() } }
+  $('#lqnext').onclick = () => { qi = (qi + 1) % items.length; qPicked = null; renderQuiz() }
+}
+function esc(s) { return String(s).replace(/[&<>]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;' }[c])) }
+
+$('#learnfile').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return
+  try {
+    const p = JSON.parse(await f.text())
+    if (!p || !Array.isArray(p.quiz)) throw new Error('kein Lernpaket')
+    PACKNAME = f.name || 'lernpaket.json'
+    PACK = loadLocalProgress(p)
+    qi = 0; qPicked = null
+    renderLearn()
+  } catch (err) { alert('Kein gültiges Lernpaket: ' + (err.message || err)) }
+}
+document.querySelectorAll('.learn-tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.learn-tabs button').forEach(x => x.classList.toggle('on', x === b))
+  for (const t of ['quiz','summary','plan']) {
+    const el = $('#lt-' + t); if (el) el.classList.toggle('hidden', t !== b.dataset.lt)
+  }
+})
+$('#learnsave').onclick = async () => {
+  if (!PACK) return
+  PACK.updated = new Date().toISOString()
+  saveLocalProgress(PACK)
+  const blob = new Blob([JSON.stringify(PACK, null, 2)], { type: 'application/json' })
+  const file = new File([blob], PACKNAME, { type: 'application/json' })
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: PACKNAME }); $('#learnsavehint').textContent = 'Geteilt – über der alten Datei in Prüfungsvorbereitung sichern.'; return }
+    catch (e) { if (e.name === 'AbortError') return }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = PACKNAME
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+  $('#learnsavehint').textContent = 'Heruntergeladen – zurück in den Prüfungsvorbereitung-Ordner legen.'
 }
 
 loadStoredKey().then(k => { KEY = k; paintKey() })

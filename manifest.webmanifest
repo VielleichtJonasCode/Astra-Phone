@@ -1,7 +1,7 @@
 {
-  "name": "Astra signieren",
-  "short_name": "Signieren",
-  "description": "PDFs mit deinem Astra-Schlüssel signieren und prüfen – komplett offline.",
+  "name": "Astra unterwegs",
+  "short_name": "Astra",
+  "description": "Notizen scannen und als PDF in iCloud ablegen, PDFs mit deinem Astra-Schlüssel signieren und prüfen – komplett offline.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

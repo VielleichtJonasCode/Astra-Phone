@@ -1,53 +1,59 @@
-# Astra signieren – Web-App (iPhone / Windows / überall)
+# Astra unterwegs – Web-App (iPhone / Windows / überall)
 
-Eine kleine, komplett **offline** laufende Web-App, mit der du PDFs mit deinem
-Astra-Signaturschlüssel signieren und prüfen kannst – ohne Astra, ohne Server,
-ohne dass irgendetwas hochgeladen wird. Gleiche `%%ASTRA-SIG`-Signatur wie Astra,
-prüfbar im Signatur-Werkzeug von Astra und umgekehrt.
+Eine kleine, komplett **offline** laufende Web-App als *eine* App fürs Handy:
 
-Dateien: `index.html`, `sw.js`, `manifest.webmanifest` – mehr braucht es nicht.
+- **Scannen** – handschriftliche Notizen mit der Kamera aufnehmen, daraus wird ein PDF,
+  das du in iCloud ablegst. Astra am Mac (Studienplaner) sortiert es nach Semester/Kurs ein.
+- **Signieren / Prüfen** – PDFs mit deinem Astra-Signaturschlüssel versehen und prüfen.
+  Gleiche `%%ASTRA-SIG`-Signatur wie Astra, gegenseitig prüfbar.
 
-## 1. Schlüssel aus Astra holen
+Kein Server, nichts wird hochgeladen. Dateien: `index.html`, `sw.js`,
+`manifest.webmanifest` – mehr braucht es nicht.
 
-Astra → **Signatur-Werkzeug** → „Schlüssel sichern …", Passwort vergeben.
-Es entsteht eine Datei `astra-signaturschluessel.astrakey`. Diese Datei plus das
-Passwort brauchst du auf dem anderen Gerät.
+> Der Ordnername `sign/` bleibt aus Kompatibilität erhalten (bestehende URL). Wer mag,
+> kann ihn beim erneuten Hochladen z. B. in `astra/` umbenennen.
 
-## 2a. Als App aufs iPhone (empfohlen)
+## Als App aufs iPhone
 
-Dafür muss die Seite einmal über **https** erreichbar sein – am einfachsten kostenlos
-über GitHub Pages (kein Server, keine Wartung):
+Die Seite muss einmal über **https** erreichbar sein – am einfachsten kostenlos über
+GitHub Pages (kein Server, keine Wartung):
 
-1. Neues öffentliches GitHub-Repo anlegen, z. B. `astra-sign`.
-2. Die drei Dateien aus diesem Ordner ins Repo laden (Web-Oberfläche: „Add file → Upload files").
-3. Repo → **Settings → Pages** → „Branch: `main`, Ordner `/root`" → Save.
-   Nach ein, zwei Minuten gibt es eine URL wie
-   `https://DEINNAME.github.io/astra-sign/`.
-4. Diese URL auf dem iPhone in **Safari** öffnen → Teilen-Symbol →
-   **„Zum Home-Bildschirm"**. Jetzt hast du „Signieren" als App-Icon,
-   startet im Vollbild und funktioniert danach auch offline.
-5. In der App Tab **Schlüssel** → `.astrakey`-Datei wählen (oder Text einfügen),
-   Passwort eingeben → „Schlüssel übernehmen". Der Schlüssel bleibt nur auf dem iPhone.
+1. Öffentliches GitHub-Repo anlegen, die drei Dateien hochladen
+   (Web-Oberfläche: „Add file → Upload files“).
+2. Repo → **Settings → Pages** → Branch `main`, Ordner `/root` → Save.
+   Nach ein, zwei Minuten gibt es eine URL wie `https://DEINNAME.github.io/REPO/`.
+3. URL auf dem iPhone in **Safari** öffnen → Teilen-Symbol → **„Zum Home-Bildschirm“**.
+   Startet danach im Vollbild und funktioniert offline.
 
-Alternativen zu GitHub Pages (auch kostenlos, kein Server): Cloudflare Pages,
-Netlify Drop (Datei-Ordner einfach auf die Seite ziehen).
+Alternativen (auch kostenlos, kein Server): Cloudflare Pages, Netlify Drop.
 
-## 2b. Windows-PC ohne alles
+## Notizen scannen → in iCloud
 
-`index.html` einfach doppelklicken – öffnet im Browser und funktioniert
-(auch das Signieren, weil Browser lokale Dateien als „sicher" behandeln).
-Nur die Installation als echte App/Offline-Cache braucht die https-Variante von oben.
+1. Tab **Scannen** → „📷 Seiten aufnehmen“ (oder „🖼 Aus Fotos wählen“), mehrere Seiten möglich.
+2. Optional „Kontrast verstärken“ für bessere Lesbarkeit. Optional einen Namen eingeben
+   (z. B. `Analysis II – Grenzwerte`).
+3. **„Als PDF sichern / in iCloud“** → im Teilen-Menü **„In Dateien sichern“** →
+   Ordner **iCloud Drive → Studium → `_Eingang`**.
+4. Am Mac in Astra → **Studienplaner**: die Datei liegt im *Eingang*; „Einsortieren“
+   liest den Text (Apple Vision) und schlägt Semester + Kurs vor.
 
-## Nutzung
+Der Ordner `Studium` (mit `_Eingang`) ist derselbe, den du in Astra unter
+*Studienplaner → Ordner wählen* gesetzt hast. iCloud synchronisiert ihn.
 
-- **Signieren**: Tab „Signieren" → PDF wählen → „Sichern / Teilen" (iPhone: geht in die
-  Dateien-App oder direkt weiter per Teilen-Menü).
-- **Prüfen**: Tab „Prüfen" → PDF wählen. Zeigt „dein Schlüssel" / „anderer Schlüssel" /
-  „nachträglich verändert" / „ungültig" / „keine Signatur" plus Kennung und Datum.
+## Schlüssel für Signieren
+
+Astra → **Signatur-Werkzeug** → „Als Datei sichern …“ (oder „Als Text kopieren“),
+Passwort vergeben. In der Web-App Tab **Schlüssel** → Datei wählen bzw. Text einfügen,
+Passwort → „Schlüssel übernehmen“. Der Schlüssel bleibt nur auf diesem Gerät.
+
+### Windows-PC ohne alles
+
+`index.html` doppelklicken – öffnet im Browser und funktioniert (auch Signieren).
+Nur die Installation als App / der Offline-Cache brauchen die https-Variante.
 
 ## Sicherheit
 
 Der private Schlüssel liegt verschlüsselt in der `.astrakey`-Datei und nach dem Import
-unverschlüsselt im lokalen Speicher des jeweiligen Browsers/Geräts. Er verlässt das
-Gerät nie. Wer Zugriff auf ein Gerät mit importiertem Schlüssel hat, kann in deinem
-Namen signieren – behandle die Datei und das Passwort entsprechend.
+unverschlüsselt im lokalen Speicher des jeweiligen Geräts. Er verlässt das Gerät nie.
+Wer Zugriff auf ein Gerät mit importiertem Schlüssel hat, kann in deinem Namen signieren –
+behandle Datei und Passwort entsprechend. Die Scan-Funktion braucht keinen Schlüssel.

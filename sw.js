@@ -1,5 +1,5 @@
-/* Offline-Cache für die Signier-Web-App. Netzwerk zuerst, damit Updates ankommen. */
-const CACHE = 'astra-sign-v3'
+/* Offline-Cache für die Astra-Web-App (Scannen + Signieren). Netzwerk zuerst, damit Updates ankommen. */
+const CACHE = 'astra-web-v5'
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './sw.js']
 
 self.addEventListener('install', (e) => {
