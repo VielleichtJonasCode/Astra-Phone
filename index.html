@@ -27,7 +27,7 @@
     background: var(--bg); color: var(--text);
     font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     max-width: 600px; margin: 0 auto;
-    padding: 0 16px calc(78px + env(safe-area-inset-bottom));
+    padding: 0 16px calc(96px + env(safe-area-inset-bottom));
   }
   .appbar {
     position: sticky; top: 0; z-index: 10;
@@ -106,27 +106,32 @@
   .steps b { color: var(--text); }
   .notice { display: flex; gap: 9px; align-items: flex-start; background: color-mix(in srgb, var(--warn) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); border-radius: 12px; padding: 11px 13px; font-size: 13px; margin-bottom: 12px; }
 
+  /* Schwebende Pillen-Leiste: bewusst mit Abstand nach unten, damit der
+     Home-Indikator / eine iOS-Randzone nicht wie ein Fehler aussieht. */
   .tabbar {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-    background: var(--surface);
-    border-top: 1px solid var(--line);
-    /* Fläche bis unter den Home-Indikator ziehen */
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  /* Deckt einen Rest-Streifen unter der Leiste ab, falls iOS im
-     Standalone-Modus die Seite nicht ganz bis zur Kante zeichnet. */
-  .tabbar::after {
-    content: ""; position: absolute; left: 0; right: 0; top: 100%;
-    height: 160px; background: var(--surface);
+    position: fixed; left: 0; right: 0; z-index: 20;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    display: flex; justify-content: center;
+    padding: 0 16px;
+    pointer-events: none; /* Leerraum neben der Pille klickt durch */
   }
   .tabbar__inner {
-    display: flex; max-width: 600px; margin: 0 auto;
-    padding: 8px 6px;
+    pointer-events: auto;
+    display: flex; gap: 2px;
+    width: 100%; max-width: 440px;
+    padding: 7px 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.6), 0 3px 12px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.05);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
   }
   .tabbar button {
     flex: 1; border: 0; background: none; color: var(--faint); font: inherit; font-size: 10.5px; font-weight: 600;
-    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 2px; border-radius: 10px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 2px; border-radius: 14px;
   }
+  .tabbar button.on { background: rgba(255,255,255,.06); }
   .tabbar button svg { width: 22px; height: 22px; }
   .tabbar button.on { color: var(--accent); }
 

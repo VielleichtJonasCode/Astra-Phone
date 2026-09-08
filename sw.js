@@ -1,5 +1,5 @@
 /* Offline-Cache für die Astra-Web-App (Scannen + Signieren). Netzwerk zuerst, damit Updates ankommen. */
-const CACHE = 'astra-web-v13'
+const CACHE = 'astra-web-v14'
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './sw.js']
 
 self.addEventListener('install', (e) => {
