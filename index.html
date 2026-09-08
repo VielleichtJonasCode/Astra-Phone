@@ -27,7 +27,7 @@
     background: var(--bg); color: var(--text);
     font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     max-width: 600px; margin: 0 auto;
-    padding: 0 16px calc(96px + env(safe-area-inset-bottom));
+    padding: 0 16px calc(84px + env(safe-area-inset-bottom));
   }
   .appbar {
     position: sticky; top: 0; z-index: 10;
@@ -106,11 +106,11 @@
   .steps b { color: var(--text); }
   .notice { display: flex; gap: 9px; align-items: flex-start; background: color-mix(in srgb, var(--warn) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); border-radius: 12px; padding: 11px 13px; font-size: 13px; margin-bottom: 12px; }
 
-  /* Schwebende Pillen-Leiste: bewusst mit Abstand nach unten, damit der
-     Home-Indikator / eine iOS-Randzone nicht wie ein Fehler aussieht. */
+  /* Schwebende Pillen-Leiste, dicht am unteren Rand (knapp über dem
+     Home-Indikator), damit sie nicht zu hoch wirkt. */
   .tabbar {
     position: fixed; left: 0; right: 0; z-index: 20;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+    bottom: max(4px, calc(env(safe-area-inset-bottom, 0px) - 20px));
     display: flex; justify-content: center;
     padding: 0 16px;
     pointer-events: none; /* Leerraum neben der Pille klickt durch */
