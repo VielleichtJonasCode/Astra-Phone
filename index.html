@@ -97,8 +97,12 @@
     <p id="keymeta"></p>
     <p>Importiere den in Astra gesicherten Schlüssel (<code>.astrakey</code>), dann signierst du
        hier mit derselben Identität. Alles bleibt auf diesem Gerät.</p>
-    <label class="file">Schlüsseldatei wählen<input type="file" id="keyfile" accept=".astrakey,.txt,text/plain"></label>
-    <p class="muted">oder Text einfügen:</p>
+    <label class="file">Schlüsseldatei wählen<input type="file" id="keyfile"></label>
+    <p class="muted">
+      Falls die Datei im Auswähler ausgegraut ist: <b>Text einfügen</b>. Dazu die
+      <code>.astrakey</code>-Datei in der Dateien-App antippen, gesamten Inhalt kopieren und hier
+      einsetzen (beginnt mit <code>ASTRA-KEY-1</code>).
+    </p>
     <textarea id="keytext" placeholder="ASTRA-KEY-1&#10;…"></textarea>
     <input type="password" id="keypw" placeholder="Passwort der Schlüsseldatei" autocomplete="off">
     <div><button class="act primary" id="keyimport">Schlüssel übernehmen</button>
@@ -111,7 +115,7 @@
   <div class="card">
     <h2>PDF signieren</h2>
     <p>Hängt die unsichtbare <code>%%ASTRA-SIG</code>-Kennung an – identisch zu Astra.</p>
-    <label class="file" id="signpick">PDF wählen<input type="file" id="signfile" accept="application/pdf,.pdf"></label>
+    <label class="file" id="signpick">PDF wählen<input type="file" id="signfile" accept=".pdf,application/pdf"></label>
     <div id="signout" class="hidden">
       <div class="result ok"><div class="head"><span class="dot">✓</span><span id="signname"></span></div></div>
       <div><button class="act primary" id="signsave">Sichern / Teilen</button></div>
@@ -124,7 +128,7 @@
 <section id="tab-verify" class="hidden">
   <div class="card">
     <h2>Signatur prüfen</h2>
-    <label class="file">PDF wählen<input type="file" id="verifyfile" accept="application/pdf,.pdf"></label>
+    <label class="file">PDF wählen<input type="file" id="verifyfile" accept=".pdf,application/pdf"></label>
     <div id="verifyout"></div>
   </div>
 </section>
