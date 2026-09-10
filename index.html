@@ -90,6 +90,7 @@
   .pages img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .pages figcaption { position: absolute; left: 5px; top: 5px; background: rgba(0,0,0,.6); border-radius: 6px; font-size: 11px; padding: 1px 6px; }
   .pages .rm { position: absolute; right: 5px; top: 5px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; display: grid; place-items: center; }
+  .pages .soft { position: absolute; left: 5px; bottom: 5px; background: #d98324; color: #fff; border-radius: 6px; font-size: 10px; padding: 1px 5px; letter-spacing: .02em; }
 
   .result { border-radius: 14px; padding: 14px; margin-top: 12px; background: var(--field); border: 1px solid var(--line); }
   .result .head { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 14px; }
@@ -105,6 +106,22 @@
   .steps { margin: 8px 0 0; padding-left: 20px; color: var(--dim); font-size: 12.5px; line-height: 1.6; }
   .steps b { color: var(--text); }
   .notice { display: flex; gap: 9px; align-items: flex-start; background: color-mix(in srgb, var(--warn) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 40%, var(--line)); border-radius: 12px; padding: 11px 13px; font-size: 13px; margin-bottom: 12px; }
+
+  #toast {
+    position: fixed; left: 16px; right: 16px; z-index: 60;
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 88px);
+    margin: 0 auto; max-width: 440px;
+    padding: 12px 15px; border-radius: 14px;
+    font-size: 13px; line-height: 1.45; text-align: center;
+    background: var(--surface-2); color: var(--text);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 34px rgba(0,0,0,.5);
+    opacity: 0; transform: translateY(8px); transition: opacity .18s, transform .18s;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: none; }
+  #toast.bad { border-color: color-mix(in srgb, var(--bad) 55%, var(--line)); }
+  #toast.ok { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
 
   /* Schwebende Pillen-Leiste, dicht am unteren Rand (knapp über dem
      Home-Indikator), damit sie nicht zu hoch wirkt. */
@@ -160,6 +177,26 @@
   .ed-h { position: absolute; width: 32px; height: 32px; margin: -16px 0 0 -16px; border-radius: 50%; border: 2px solid #fff; background: rgba(91,140,255,.55); }
   .ed-bar { display: flex; gap: 8px; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); background: var(--surface); }
   .ed-bar .btn { flex: 1; margin: 0; }
+
+  #camera { position: fixed; inset: 0; z-index: 55; background: #000; display: flex; flex-direction: column; }
+  #camera.hidden { display: none; }
+  #camvid { flex: 1; width: 100%; min-height: 0; object-fit: cover; background: #000; }
+  .cam-top { position: absolute; top: calc(env(safe-area-inset-top) + 10px); left: 0; right: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
+  #camcount { background: rgba(0,0,0,.55); color: #fff; border-radius: 999px; padding: 4px 12px; font-size: 13px; }
+  .cam-dot { font-size: 11px; color: #fff; background: rgba(0,0,0,.5); border-radius: 999px; padding: 2px 9px; letter-spacing: .01em; }
+  .cam-dot.ok { color: #7ee0a8; }
+  .cam-dot.bad { color: #ffb27a; }
+  .cam-flash { position: absolute; left: 12px; right: 12px; top: calc(env(safe-area-inset-top) + 58px); z-index: 2; pointer-events: none; text-align: center; font-size: 14px; font-weight: 600; padding: 10px 12px; border-radius: 12px; color: #fff; }
+  .cam-flash.ok { background: rgba(30,140,80,.92); }
+  .cam-flash.bad { background: rgba(200,90,40,.95); }
+  .cam-strip { position: absolute; left: 0; right: 0; bottom: 96px; display: flex; gap: 6px; padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .cam-strip img { width: 44px; height: 58px; object-fit: cover; border-radius: 6px; border: 1px solid rgba(255,255,255,.35); flex: 0 0 auto; }
+  .cam-strip img.soft { border-color: #ff7a3c; border-width: 2px; }
+  .cam-bar { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 18px calc(env(safe-area-inset-bottom) + 14px); display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(transparent, rgba(0,0,0,.65)); }
+  .cam-bar .btn { margin: 0; min-width: 92px; }
+  .cam-shutter { width: 66px; height: 66px; border-radius: 50%; border: 4px solid #fff; background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.45); flex: 0 0 auto; }
+  .cam-shutter:active { transform: scale(.92); }
+  .cam-shutter.busy { opacity: .45; }
 </style>
 </head>
 <body>
@@ -171,8 +208,9 @@
 <!-- ============ Scannen ============ -->
 <section id="tab-scan" class="screen">
   <div class="card">
-    <p class="lead">Seiten fotografieren → sauberes PDF, das du in iCloud ablegst. Astra am Mac sortiert es ein.</p>
-    <label class="pick block"><span>📷 Seiten aufnehmen</span><input type="file" id="scanfile" accept="image/*" capture="environment" multiple></label>
+    <p class="lead">Mehrere Seiten hintereinander fotografieren → ein sauberes PDF, das du in iCloud ablegst. Astra am Mac sortiert es ein.</p>
+    <button type="button" class="pick block" id="scancam"><span>📷 Kamera – mehrere Seiten</span></button>
+    <label class="pick block"><span>📸 Einzelnes Foto aufnehmen</span><input type="file" id="scanfile" accept="image/*" capture="environment"></label>
     <label class="pick block"><span>🖼 Aus Fotos wählen</span><input type="file" id="scanpick" accept="image/*" multiple></label>
 
     <div class="pages" id="scanpages"></div>
@@ -184,7 +222,7 @@
       <label class="switch"><span>Schwarz-Weiß<small>für reinen Text</small></span><input type="checkbox" id="scanbw"></label>
     </details>
 
-    <div class="field"><label for="scanname">Name (optional)</label>
+    <div class="field"><label for="scanname">Name</label>
       <input type="text" id="scanname" placeholder="z. B. Analysis II – Grenzwerte"></div>
 
     <div class="btn-row stack">
@@ -196,8 +234,8 @@
       <summary>So kommt es in iCloud</summary>
       <ol class="steps">
         <li>Teilen-Menü → <b>„In Dateien sichern“</b>.</li>
-        <li><b>iCloud Drive → Studium → _Eingang</b> wählen.</li>
-        <li>Am Mac: Astra → <b>Studienplaner</b> → <b>„Einsortieren“</b>.</li>
+        <li>Einmal <b>iCloud Drive → Studium → _Eingang</b> wählen – iOS merkt sich den Ordner für die nächsten Male.</li>
+        <li>Am Mac: Astra → <b>Studienplaner</b> → <b>„Einsortieren“</b>. Astra erkennt das Fach selbst.</li>
       </ol>
     </details>
     <p class="hint" id="scanhint"></p>
@@ -285,6 +323,21 @@
 </section>
 
 <!-- ============ Ecken-Editor ============ -->
+<div id="camera" class="hidden">
+  <video id="camvid" playsinline muted autoplay></video>
+  <div class="cam-top">
+    <span id="camcount">0 Seiten</span>
+    <span id="camfocus" class="cam-dot"></span>
+  </div>
+  <div id="camflash" class="cam-flash hidden"></div>
+  <div class="cam-strip" id="camstrip"></div>
+  <div class="cam-bar">
+    <button class="btn ghost" id="camcancel">Schließen</button>
+    <button class="cam-shutter" id="camshot" aria-label="Seite aufnehmen"></button>
+    <button class="btn primary" id="camdone">Fertig</button>
+  </div>
+</div>
+
 <div id="editor" class="hidden">
   <div class="ed-stage" id="edstage">
     <img id="edimg" alt="">
@@ -307,6 +360,7 @@
     <button data-tab="key"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m10.9 12.1 7.1-7.1"/><path d="m15 5 3 3"/><path d="m18.5 8.5 2-2"/></svg><span>Schlüssel</span></button>
   </div>
 </nav>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 const KEY_ALG = { name: 'ECDSA', namedCurve: 'P-256' }
@@ -319,6 +373,23 @@ const b64 = (buf) => { const u = buf instanceof Uint8Array ? buf : new Uint8Arra
 const unb64 = (s) => { const bin = atob(s.replace(/\s+/g,'')); const o = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) o[i]=bin.charCodeAt(i); return o }
 const hex = (buf) => Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('')
 const $ = (s) => document.querySelector(s)
+
+let toastTimer = null
+function toast(msg, kind = '') {
+  const el = $('#toast')
+  if (!el) { if (kind === 'bad') alert(msg); return }
+  el.textContent = msg
+  el.className = (kind ? kind + ' ' : '') + 'show'
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { el.className = el.className.replace('show', '').trim() }, kind === 'bad' ? 5200 : 3200)
+}
+/** Lesbarer Grund für ein fehlgeschlagenes navigator.share (ohne Nutzer-Abbruch). */
+function shareErr(e) {
+  if (!e) return null
+  if (e.name === 'AbortError') return null // Nutzer hat abgebrochen – kein Fehler
+  if (e.name === 'NotAllowedError') return 'Teilen wurde vom Browser blockiert. Nochmal tippen, direkt nach dem Erstellen.'
+  return 'Teilen nicht möglich (' + (e.name || 'Fehler') + '). Datei wird stattdessen zum Download angeboten.'
+}
 
 async function fingerprint(rawPub) {
   const d = new Uint8Array(await crypto.subtle.digest('SHA-256', rawPub)).slice(0,10)
@@ -536,6 +607,24 @@ async function canvasToJpeg(cv, q) {
   return { bytes: new Uint8Array(await blob.arrayBuffer()), w: cv.width, h: cv.height }
 }
 
+/** Schätzt Schärfe: Varianz des Laplace-Operators auf dem Analyse-Canvas. Klein = unscharf. */
+function sharpnessScore(canvas) {
+  const w = canvas.width, h = canvas.height
+  if (w < 5 || h < 5) return 999
+  const d = canvas.getContext('2d').getImageData(0, 0, w, h).data
+  const g = new Float32Array(w * h)
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) g[j] = d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114
+  let sum = 0, sumSq = 0, n = 0
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    const k = y*w + x
+    const lap = 4*g[k] - g[k-1] - g[k+1] - g[k-w] - g[k+w]
+    sum += lap; sumSq += lap*lap; n++
+  }
+  if (!n) return 999
+  const mean = sum / n
+  return sumSq / n - mean * mean
+}
+
 /** file -> Seiten-Objekt mit Vorschau + geschätzten Ecken (in cap-Koordinaten). */
 async function prepPage(file) {
   const [cap, an] = await Promise.all([decodeToCanvas(file, CAP_EDGE), decodeToCanvas(file, AN_EDGE)])
@@ -543,10 +632,12 @@ async function prepPage(file) {
   try { quad = detectQuad(an) } catch {}
   const k = cap.width / an.width
   quad = quad ? quad.map(p => [p[0]*k, p[1]*k]) : insetQuad(cap.width, cap.height, 0.04)
+  let soft = false
+  try { soft = sharpnessScore(an) < 8 } catch {}
   const blob = cap.convertToBlob
     ? await cap.convertToBlob({ type: 'image/jpeg', quality: 0.6 })
     : await new Promise(r => cap.toBlob(r, 'image/jpeg', 0.6))
-  return { cap, quad, w: cap.width, h: cap.height, url: URL.createObjectURL(blob) }
+  return { cap, quad, soft, w: cap.width, h: cap.height, url: URL.createObjectURL(blob) }
 }
 
 /** Seite -> fertiges JPEG (zuschneiden/begradigen + Belichtung). */
@@ -634,18 +725,32 @@ $('#signkeylink').onclick = (e) => { e.preventDefault(); switchTab('key') }
 let scanPages = []   // { cap, quad, w, h, url }
 
 async function addScanFiles(list) {
-  const files = Array.from(list)
+  const files = Array.from(list || [])
+  if (!files.length) return
   $('#scanhint').textContent = 'Seiten werden verarbeitet …'
   const done = await Promise.all(files.map(f => prepPage(f).catch(e => { console.warn(e); return null })))
-  for (const p of done) if (p) scanPages.push(p)
+  const ok = done.filter(Boolean)
+  for (const p of ok) scanPages.push(p)
   renderScanPages()
+  const failed = done.length - ok.length
+  if (failed && !ok.length) {
+    $('#scanhint').textContent = 'Keine Seite konnte gelesen werden.'
+    toast('Bild konnte nicht gelesen werden – anderes Format probieren (JPG, PNG, HEIC).', 'bad')
+  } else if (failed) {
+    $('#scanhint').textContent = ''
+    toast(failed + ' von ' + done.length + ' Bildern nicht lesbar – übersprungen.', 'bad')
+  } else {
+    $('#scanhint').textContent = ''
+  }
 }
 function renderScanPages() {
   const wrap = $('#scanpages')
   wrap.innerHTML = ''
   scanPages.forEach((p, i) => {
     const fig = document.createElement('figure')
-    fig.innerHTML = '<img src="' + p.url + '" alt=""><figcaption>' + (i+1) + '</figcaption><button class="rm" aria-label="Entfernen">×</button>'
+    fig.innerHTML = '<img src="' + p.url + '" alt=""><figcaption>' + (i+1) + '</figcaption>' +
+      (p.soft ? '<span class="soft">unscharf?</span>' : '') +
+      '<button class="rm" aria-label="Entfernen">×</button>'
     fig.querySelector('img').onclick = () => openEditor(i)
     fig.querySelector('button').onclick = (ev) => {
       ev.stopPropagation()
@@ -658,7 +763,140 @@ function renderScanPages() {
   $('#scanclear').disabled = !has
   $('#scantip').style.display = has ? '' : 'none'
   $('#scanhint').textContent = has ? (scanPages.length + ' Seite(n) bereit') : ''
+  if (!$('#camera').classList.contains('hidden')) updateCamCount()
 }
+
+/* --- Kamera: mehrere Seiten am Stück in EIN Dokument --- */
+let camStream = null, camLoop = null
+
+function updateCamCount() {
+  const n = scanPages.length
+  $('#camcount').textContent = n + (n === 1 ? ' Seite' : ' Seiten') + ' in diesem Dokument'
+  const strip = $('#camstrip'); strip.innerHTML = ''
+  scanPages.slice(-8).forEach(p => {
+    const im = new Image(); im.src = p.url; im.alt = ''
+    if (p.soft) im.className = 'soft'
+    strip.appendChild(im)
+  })
+  strip.scrollLeft = strip.scrollWidth
+}
+
+/** Schärfe eines Video-Frames bei fester Analyse-Breite (gleiche Skala wie prepPage). */
+function frameSharpness(video, w) {
+  const s = w / video.videoWidth
+  const c = mkCanvas(w, Math.max(1, Math.round(video.videoHeight * s)))
+  c.getContext('2d').drawImage(video, 0, 0, c.width, c.height)
+  return sharpnessScore(c)
+}
+
+/** Serie von `tries` Frames aufnehmen, das schärfste behalten (gegen Verwackeln). */
+async function grabSharpest(video, tries = 3) {
+  let best = null
+  for (let i = 0; i < tries; i++) {
+    const full = mkCanvas(video.videoWidth, video.videoHeight)
+    full.getContext('2d').drawImage(video, 0, 0)
+    let score = 0
+    try {
+      const s = AN_EDGE / video.videoWidth
+      const sc = mkCanvas(AN_EDGE, Math.max(1, Math.round(video.videoHeight * s)))
+      sc.getContext('2d').drawImage(full, 0, 0, sc.width, sc.height)
+      score = sharpnessScore(sc)
+    } catch {}
+    if (!best || score > best.score) best = { full, score }
+    if (i < tries - 1) await new Promise(r => setTimeout(r, 60))
+  }
+  return best
+}
+
+function camFlash(kind, text, ms) {
+  const el = $('#camflash')
+  el.className = 'cam-flash ' + kind
+  el.textContent = text
+  clearTimeout(camFlash._t)
+  camFlash._t = setTimeout(() => el.classList.add('hidden'), ms || 1800)
+}
+
+function startFocusLoop() {
+  stopFocusLoop()
+  camLoop = setInterval(() => {
+    const v = $('#camvid'); if (!v.videoWidth) return
+    let sc = 999
+    try { sc = frameSharpness(v, AN_EDGE) } catch { return }
+    // gleiche Schwelle wie die Verwackel-Prüfung nach dem Auslösen (shootFrame)
+    const dot = $('#camfocus'), ok = sc >= 9
+    dot.className = 'cam-dot ' + (ok ? 'ok' : 'bad')
+    dot.textContent = ok ? '● scharf' : '● unruhig – ruhig halten'
+  }, 450)
+}
+function stopFocusLoop() { if (camLoop) { clearInterval(camLoop); camLoop = null } }
+async function openCamera() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    toast('Dieser Browser gibt keinen Kamerazugriff frei – nutze „Einzelnes Foto“ oder „Aus Fotos wählen“.', 'bad'); return
+  }
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 2400 }, height: { ideal: 2400 } },
+      audio: false
+    })
+  } catch (e) {
+    const n = e && e.name
+    toast(
+      n === 'NotAllowedError' ? 'Kamerazugriff wurde abgelehnt – in den Website-Einstellungen des Browsers erlauben.'
+      : n === 'NotFoundError' ? 'Keine Kamera gefunden.'
+      : 'Kamera nicht verfügbar (die Seite muss über HTTPS laufen): ' + (e && e.message || e), 'bad')
+    return
+  }
+  const v = $('#camvid')
+  v.srcObject = camStream
+  try { await v.play() } catch {}
+  $('#camera').classList.remove('hidden')
+  $('#camflash').classList.add('hidden')
+  updateCamCount()
+  startFocusLoop()
+}
+function closeCamera() {
+  stopFocusLoop()
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null }
+  const v = $('#camvid'); v.pause && v.pause(); v.srcObject = null
+  $('#camera').classList.add('hidden')
+}
+async function shootFrame() {
+  const v = $('#camvid'), btn = $('#camshot')
+  if (!v.videoWidth || btn.classList.contains('busy')) return
+  btn.classList.add('busy')
+  $('#scanhint').textContent = 'Seite wird verarbeitet …'
+  try {
+    // 3 Frames – das schärfste nehmen (schluckt kurzes Verwackeln).
+    const best = await grabSharpest(v, 3)
+    const cv = best.full
+    const blob = cv.convertToBlob
+      ? await cv.convertToBlob({ type: 'image/jpeg', quality: 0.92 })
+      : await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.92))
+    const page = await prepPage(blob)
+    const shaky = page.soft || best.score < 9
+    page.soft = shaky
+    scanPages.push(page)
+    renderScanPages()
+    if (shaky) {
+      camFlash('bad', '⚠ Verwackelt oder unscharf – Seite lieber nochmal', 2400)
+      if (navigator.vibrate) navigator.vibrate([45, 35, 45])
+    } else {
+      camFlash('ok', '✓ scharf', 900)
+      if (navigator.vibrate) navigator.vibrate(12)
+    }
+  } catch (e) {
+    console.warn(e); toast('Diese Seite konnte nicht verarbeitet werden – nochmal aufnehmen.', 'bad')
+  } finally {
+    btn.classList.remove('busy')
+    $('#scanhint').textContent = scanPages.length ? (scanPages.length + ' Seite(n) bereit') : ''
+  }
+}
+$('#scancam').onclick = openCamera
+$('#camshot').onclick = shootFrame
+$('#camcancel').onclick = closeCamera
+$('#camdone').onclick = () => { closeCamera(); if (scanPages.length) toast(scanPages.length + ' Seite(n) im Dokument – unten „Als PDF sichern“.') }
+window.addEventListener('pagehide', closeCamera)
+document.addEventListener('visibilitychange', () => { if (document.hidden) closeCamera() })
 
 /* --- Ecken-Editor --- */
 let edIdx = -1, edQuad = null, edFit = null
@@ -699,9 +937,21 @@ $('#edcancel').onclick = closeEditor
 $('#eddone').onclick = () => { scanPages[edIdx].quad = edQuad; closeEditor() }
 window.addEventListener('resize', () => { if (edIdx >= 0) edLayout() })
 
+/* Name-Feld: „Mitschrift TT.MM.JJJJ" vorschreiben, aber frei änderbar. */
+function defaultScanName() {
+  const d = new Date()
+  const p = (n) => String(n).padStart(2, '0')
+  return 'Mitschrift ' + p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear()
+}
+function resetScanName() { $('#scanname').value = defaultScanName() }
+resetScanName()
+$('#scanname').addEventListener('focus', function () { this.select() })
+
 $('#scanfile').onchange = (e) => { addScanFiles(e.target.files); e.target.value = '' }
 $('#scanpick').onchange = (e) => { addScanFiles(e.target.files); e.target.value = '' }
-$('#scanclear').onclick = () => { scanPages.forEach(p => URL.revokeObjectURL(p.url)); scanPages = []; renderScanPages() }
+$('#scanclear').onclick = () => {
+  scanPages.forEach(p => URL.revokeObjectURL(p.url)); scanPages = []; renderScanPages(); resetScanName()
+}
 $('#scansave').onclick = async () => {
   if (!scanPages.length) return
   const btn = $('#scansave'); btn.disabled = true; btn.textContent = 'Wird erstellt …'
@@ -709,20 +959,29 @@ $('#scansave').onclick = async () => {
   try {
     const jpegs = await Promise.all(scanPages.map(p => renderPage(p, auto, bw)))
     const pdf = buildPdf(jpegs)
-    const raw = ($('#scanname').value || 'Notiz').trim().replace(/[/\\:*?"<>|]+/g, '-')
-    const name = raw + ' ' + new Date().toISOString().slice(0, 10) + '.pdf'
+    const typed = $('#scanname').value.trim().replace(/[/\\:*?"<>|]+/g, '-')
+    const name = (typed || ('Notiz ' + new Date().toISOString().slice(0, 10))) + '.pdf'
     const file = new File([pdf], name, { type: 'application/pdf' })
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: name }); $('#scanhint').textContent = 'Geteilt – „In Dateien sichern“ → Studium/_Eingang.'; return }
-      catch (e) { if (e.name === 'AbortError') return }
+      try {
+        await navigator.share({ files: [file], title: name })
+        $('#scanhint').textContent = 'Geteilt – „In Dateien sichern“ → Studium/_Eingang.'
+        resetScanName()
+        return
+      }
+      catch (e) { const m = shareErr(e); if (!m) return; toast(m, 'bad') }
+    } else {
+      toast('Dieser Browser kann die Datei nicht direkt teilen – sie wird heruntergeladen.', 'bad')
     }
     const a = document.createElement('a')
     a.href = URL.createObjectURL(file); a.download = name
     document.body.appendChild(a); a.click(); a.remove()
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
     $('#scanhint').textContent = 'Heruntergeladen – nach iCloud Drive / Studium / _Eingang verschieben.'
+    resetScanName()
   } catch (e) {
-    alert('Erstellen fehlgeschlagen: ' + (e.message || e))
+    console.error(e)
+    toast('PDF-Erstellung fehlgeschlagen: ' + (e && e.message || e), 'bad')
   } finally {
     btn.disabled = false; btn.textContent = 'Als PDF sichern / in iCloud'
   }
@@ -737,14 +996,14 @@ function paintKey() {
 }
 async function doImport(text) {
   const pw = $('#keypw').value
-  if (!text.trim() || !pw) return alert('Datei/Text und Passwort nötig.')
+  if (!text.trim() || !pw) return toast('Schlüsseldatei/-text und Passwort nötig.', 'bad')
   try {
     const s = await decryptKeyFile(text, pw)
     localStorage.setItem(LS, JSON.stringify({ created: s.created, privateJwk: s.privateJwk, publicJwk: s.publicJwk }))
     KEY = await importPair(s)
     $('#keypw').value = ''; $('#keytext').value = ''
-    paintKey(); alert('Schlüssel übernommen.')
-  } catch (e) { alert(e.message || 'Import fehlgeschlagen') }
+    paintKey(); toast('Schlüssel übernommen.', 'ok')
+  } catch (e) { toast(e && e.message || 'Import fehlgeschlagen – Passwort prüfen.', 'bad') }
 }
 $('#keyfile').onchange = async (e) => { const f = e.target.files[0]; if (f) $('#keytext').value = await f.text() }
 $('#keyimport').onclick = () => doImport($('#keytext').value)
@@ -754,7 +1013,7 @@ $('#keyclear').onclick = () => { if (confirm('Schlüssel von diesem Gerät entfe
 let signedBlob = null, signedName = ''
 $('#signfile').onchange = async (e) => {
   const f = e.target.files[0]; if (!f) return
-  if (!KEY) return alert('Erst einen Schlüssel importieren (Tab „Schlüssel“).')
+  if (!KEY) return toast('Erst einen Schlüssel importieren (Tab „Schlüssel“).', 'bad')
   try {
     const out = await appendSignature(new Uint8Array(await f.arrayBuffer()))
     signedName = f.name.replace(/\.pdf$/i,'') + '-signiert.pdf'
@@ -762,13 +1021,16 @@ $('#signfile').onchange = async (e) => {
     $('#signname').textContent = signedName
     $('#signout').classList.remove('hidden')
     $('#signhint').textContent = 'Signiert mit Kennung ' + KEY.keyId
-  } catch (err) { alert(err.message || 'Signieren fehlgeschlagen') }
+  } catch (err) { console.error(err); toast(err && err.message || 'Signieren fehlgeschlagen.', 'bad') }
 }
 $('#signsave').onclick = async () => {
   if (!signedBlob) return
   const file = new File([signedBlob], signedName, { type: 'application/pdf' })
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try { await navigator.share({ files: [file], title: signedName }); return } catch {}
+    try { await navigator.share({ files: [file], title: signedName }); return }
+    catch (e) { const m = shareErr(e); if (!m) return; toast(m, 'bad') }
+  } else {
+    toast('Dieser Browser kann die Datei nicht direkt teilen – sie wird heruntergeladen.', 'bad')
   }
   const a = document.createElement('a')
   a.href = URL.createObjectURL(signedBlob); a.download = signedName
@@ -937,7 +1199,7 @@ $('#learnfile').onchange = async (e) => {
     PACK = loadLocalProgress(p)
     qi = 0; qPicked = null; curQuiz = 0; weakMode = false
     renderLearn()
-  } catch (err) { alert('Kein gültiges Lernpaket: ' + (err.message || err)) }
+  } catch (err) { toast('Kein gültiger Lernplan: ' + (err && err.message || err), 'bad') }
 }
 document.querySelectorAll('#learntabs button').forEach(b => b.onclick = () => {
   document.querySelectorAll('#learntabs button').forEach(x => x.classList.toggle('on', x === b))
